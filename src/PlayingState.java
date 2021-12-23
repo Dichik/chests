@@ -12,6 +12,7 @@ public class PlayingState extends GameState {
     private List<Card> computerCards;
 
     private final Integer INIT_NUMBER_OF_CARDS_TO_TAKE = 8;
+    private final Integer NUMBER_OF_CARDS_IN_DECK = 36;
 
     @Override
     protected void init() {
@@ -20,6 +21,11 @@ public class PlayingState extends GameState {
         myCards = new ArrayList<>();
         computerCards = new ArrayList<>();
         map = new HashMap<>();
+        generateCards();
+    }
+
+    private void generateCards() {
+
     }
 
     @Override

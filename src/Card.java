@@ -9,5 +9,5 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Card {
     private CardName cardName;
-    private Color color;
+    private CardColor color;
 }
