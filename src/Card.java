@@ -1,13 +1,21 @@
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 public class Card {
     private CardName cardName;
     private CardColor color;
+
+    public Card(CardName cardName, CardColor color) {
+        this.cardName = cardName;
+        this.color = color;
+    }
+
+    @Override
+    public String toString() {
+        return "Card{" +
+                "cardName=" + cardName +
+                ", color=" + color +
+                '}';
+    }
 }
