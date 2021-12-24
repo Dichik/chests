@@ -101,7 +101,7 @@ public class PlayingState extends GameState {
         }
 
         for(int i = 0; i < computerCards.size(); ++ i) {
-            printComputerCard(computerCards.get(i), 100 + 125 * i, 200, graphics);
+            printComputerCard(computerCards.get(i), getStartPoint(100, computerCards.size()) + 100 * i, 200, graphics);
         }
 
         graphics.setColor(Color.BLACK);
@@ -110,8 +110,12 @@ public class PlayingState extends GameState {
         graphics.fillRect(1, 301, Window.WIDTH - 1, Window.HEIGHT - 300 - 1);
 
         for(int i = 0; i < myCards.size(); ++ i) {
-            printMyCard(myCards.get(i), 100 + 150 * i, Window.HEIGHT - 300, graphics);
+            printMyCard(myCards.get(i), getStartPoint(150, myCards.size()) + 150 * i, Window.HEIGHT - 300, graphics);
         }
+    }
+// TODO create const variables for everything (Colors too)
+    private int getStartPoint(int cardWidth, int size) {
+        return Window.WIDTH / 2 - ( (size % 2 == 0) ? (cardWidth * size / 2) : (size / 2 * cardWidth + cardWidth / 2) );
     }
 
     private void printMyCard(Card card, int x, int y, Graphics graphics) {
