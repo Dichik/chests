@@ -81,8 +81,8 @@ public class PlayingState extends GameState {
 
     private void generateCards() {
         List<Card> cardList = new ArrayList<>();
-        for(int i = 0; i < NUMBER_OF_CARDS_IN_DECK / 4; ++ i) {
-            for(int j = 0; j < 4; ++ j) {
+        for (int i = 0; i < NUMBER_OF_CARDS_IN_DECK / 4; ++i) {
+            for (int j = 0; j < 4; ++j) {
                 cardList.add(new Card(CardName.values()[i], CardColor.values()[j]));
             }
         }
@@ -92,7 +92,7 @@ public class PlayingState extends GameState {
 
     private void drawBackground(Graphics graphics) {
         graphics.setColor(new Color(192, 213, 49));
-        graphics.fillRect(0,0, Window.WIDTH, Window.HEIGHT);
+        graphics.fillRect(0, 0, Window.WIDTH, Window.HEIGHT);
         try {
             final BufferedImage image = ImageIO.read(new File("src/images/monkey.jpg"));
             graphics.drawImage(image, Window.WIDTH / 2 - image.getWidth() / 4, 0, image.getWidth() / 2, image.getHeight() / 2, null);
@@ -100,7 +100,7 @@ public class PlayingState extends GameState {
             e.printStackTrace();
         }
 
-        for(int i = 0; i < computerCards.size(); ++ i) {
+        for (int i = 0; i < computerCards.size(); ++i) {
             printComputerCard(computerCards.get(i), getStartPoint(100, computerCards.size()) + 100 * i, 200, graphics);
         }
 
@@ -109,25 +109,98 @@ public class PlayingState extends GameState {
         graphics.setColor(new Color(22, 255, 98));
         graphics.fillRect(1, 301, Window.WIDTH - 1, Window.HEIGHT - 300 - 1);
 
-        for(int i = 0; i < myCards.size(); ++ i) {
+        for (int i = 0; i < myCards.size(); ++i) {
             printMyCard(myCards.get(i), getStartPoint(150, myCards.size()) + 150 * i, Window.HEIGHT - 300, graphics);
         }
     }
-// TODO create const variables for everything (Colors too)
+
+    // TODO create const variables for everything (Colors too)
     private int getStartPoint(int cardWidth, int size) {
-        return Window.WIDTH / 2 - ( (size % 2 == 0) ? (cardWidth * size / 2) : (size / 2 * cardWidth + cardWidth / 2) );
+        return Window.WIDTH / 2 - ((size % 2 == 0) ? (cardWidth * size / 2) : (size / 2 * cardWidth + cardWidth / 2));
     }
 
     private void printMyCard(Card card, int x, int y, Graphics graphics) {
         graphics.setColor(Color.BLACK);
-        ( (Graphics2D) graphics).draw( new RoundRectangle2D.Float(x, y, 150, 250, 10, 10) );
+        ((Graphics2D) graphics).draw(new RoundRectangle2D.Float(x, y, 150, 250, 10, 10));
         graphics.setColor(Color.WHITE);
         graphics.fillRoundRect(x + 1, y + 1, 150 - 1, 250 - 1, 10, 10);
+
+        if(getColorFromCardName(card) == Color.BLACK) {
+            graphics.setColor(new Color(108, 108, 108, 255));
+            graphics.fillRect(x + 150 / 2 - 50, y + 250 / 2 - 60, 100, 120);
+
+            graphics.setColor(new Color(255, 150, 150, 255));
+            graphics.fillRect(x + 150 / 2 - 40, y + 250 / 2 - 50, 80, 100);
+        } else {
+            graphics.setColor(new Color(255, 150, 150, 255));
+            graphics.fillRect(x + 150 / 2 - 50, y + 250 / 2 - 60, 100, 120);
+
+            graphics.setColor(new Color(108, 108, 108, 255));
+            graphics.fillRect(x + 150 / 2 - 40, y + 250 / 2 - 50, 80, 100);
+        }
+
+        try {
+            final BufferedImage colorCard = ImageIO.read(getColorCardURL(card));
+            graphics.drawImage(colorCard, 150 / 2 + x - colorCard.getWidth() / 2, 250 / 2 + y - colorCard.getHeight() / 2, null);
+            graphics.setColor(getColorFromCardName(card));
+            graphics.setFont(new Font("Roboto", Font.PLAIN, 25));
+            graphics.drawString(getNameFromCard(card), x + 10, y + 30);
+            graphics.drawString(getNameFromCard(card), x + 150 - 30, y + 250 - 10);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String getNameFromCard(Card card) {
+        switch (card.getCardName()) {
+            case SIX:
+                return "6";
+            case KING:
+                return "K";
+            case SEVEN:
+                return "7";
+            case EIGHT:
+                return "8";
+            case NINE:
+                return "9";
+            case TEN:
+                return "10";
+            case JACK:
+                return "J";
+            case QUEEN:
+                return "Q";
+            default:
+                return "A";
+        }
+    }
+
+    private Color getColorFromCardName(Card card) {
+        switch (card.getColor()) {
+            case HEARTS:
+            case DIAMONDS:
+                return Color.RED;
+            default:
+                return Color.BLACK;
+        }
+    }
+
+    private File getColorCardURL(Card card) {
+        switch (card.getColor()) {
+            case CLUBS:
+                return new File("src/images/clubs.png");
+            case HEARTS:
+                return new File("src/images/hearts.png");
+            case SPADES:
+                return new File("src/images/spades.png");
+            case DIAMONDS:
+            default:
+                return new File("src/images/diamonds.png");
+        }
     }
 
     private void printComputerCard(Card card, int x, int y, Graphics graphics) {
         graphics.setColor(Color.BLACK);
-        ( (Graphics2D) graphics).draw( new RoundRectangle2D.Float(x, y, 125, 220, 10, 10) );
+        ((Graphics2D) graphics).draw(new RoundRectangle2D.Float(x, y, 125, 220, 10, 10));
         graphics.setColor(Color.WHITE);
         graphics.fillRoundRect(x + 1, y + 1, 125 - 1, 220 - 1, 10, 10);
         try {
