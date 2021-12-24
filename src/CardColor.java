@@ -1,3 +1,6 @@
+import lombok.ToString;
+
+@ToString
 public enum CardColor {
 
     SPADES(0),
@@ -19,4 +22,10 @@ public enum CardColor {
         return num;
     }
 
+    @Override
+    public String toString() {
+        return "CardColor{" +
+                "num=" + num +
+                '}';
+    }
 }

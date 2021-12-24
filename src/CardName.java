@@ -1,3 +1,4 @@
+
 public enum CardName {
 
     SIX(0),
@@ -22,6 +23,13 @@ public enum CardName {
 
     public int getPosition() {
         return this.num;
+    }
+
+    @Override
+    public String toString() {
+        return "CardName{" +
+                "num=" + num +
+                '}';
     }
 
 }
