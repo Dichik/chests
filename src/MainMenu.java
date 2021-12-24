@@ -54,9 +54,9 @@ public class MainMenu extends GameState {
         graphics.fillRect(0, 0, Window.WIDTH, Window.HEIGHT);
 
         graphics.setColor(new Color(255, 255, 255, 255));
-        graphics.drawRect(350, 50, 300, 450);
+        graphics.drawRect(750, 50, 300, 450);
         graphics.setColor(new Color(50, 47, 47, 255));
-        graphics.fillRect(351, 51, 299, 449);
+        graphics.fillRect(751, 51, 299, 449);
     }
 
     private void drawOptions(Graphics graphics) {
