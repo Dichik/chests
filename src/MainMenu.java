@@ -25,8 +25,8 @@ public class MainMenu extends GameState {
 
     @Override
     public void render(Graphics graphics) {
-        drawBackground(graphics);
-        drawOptions(graphics);
+        PauseMenu.drawBackground(graphics);
+        PauseMenu.drawOptions(graphics, options, selected);
     }
 
     @Override
@@ -47,35 +47,6 @@ public class MainMenu extends GameState {
 
     @Override
     public void keyReleased(int key) {
-    }
-
-    private void drawBackground(Graphics graphics) {
-        graphics.setColor(new Color(54, 51, 51));
-        graphics.fillRect(0, 0, Window.WIDTH, Window.HEIGHT);
-
-        graphics.setColor(new Color(255, 255, 255, 255));
-        graphics.drawRect(750, 50, 300, 450);
-        graphics.setColor(new Color(50, 47, 47, 255));
-        graphics.fillRect(751, 51, 299, 449);
-    }
-
-    private void drawOptions(Graphics graphics) {
-        graphics.setColor(Color.WHITE);
-        graphics.setFont(new Font("Roboto", Font.PLAIN + Font.ITALIC, 25));
-
-        IntStream.range(0, options.length).forEachOrdered(i -> {
-            if (selected == i) {
-                graphics.setColor(Color.GREEN);
-            } else graphics.setColor(Color.WHITE);
-            drawCenteredString(options[i], i, graphics);
-        });
-    }
-
-    private void drawCenteredString(String option, int diffBetweenLines, Graphics graphics) {
-        FontMetrics fm = graphics.getFontMetrics();
-        int x = (Window.WIDTH - fm.stringWidth(option)) / 2;
-        int y = (fm.getAscent() + (200 + 200 * diffBetweenLines - (fm.getAscent() + fm.getDescent())) / 2);
-        graphics.drawString(option, x, y);
     }
 
 }
