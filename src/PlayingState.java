@@ -126,9 +126,23 @@ public class PlayingState extends GameState {
         g2D.fillRect(Window.WIDTH - 250,300 + 1,250 - 2, 1000 - 2);
 
         g2D.rotate(0.2);
+        drawDeckOfCard(graphics);
 
         for (int i = 0; i < myCards.size(); ++i) {
             printMyCard(myCards.get(i), getStartPoint(150, myCards.size()) + 150 * i, Window.HEIGHT - 300, graphics);
+        }
+    }
+
+    private void drawDeckOfCard(Graphics graphics) {
+        try {
+            final BufferedImage cardBack = ImageIO.read(new File("src/images/card_backside.jpg"));
+            graphics.drawImage(cardBack, Window.WIDTH - 320, 450, 150, 220, null);
+            String str = Integer.toString(deck.size());
+            graphics.setColor(Color.BLACK);
+            graphics.setFont(new Font("Ubuntu", Font.PLAIN, 25));
+            graphics.drawString(str, Window.WIDTH - 320 + 150 / 2 - 15, 450);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
