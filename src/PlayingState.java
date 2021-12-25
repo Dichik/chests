@@ -1,5 +1,6 @@
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.awt.geom.RoundRectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -44,7 +45,10 @@ public class PlayingState extends GameState {
 
     @Override
     public void keyPressed(int key) {
-
+//        TODO we should see chosenMenu - for card name and color
+        if(key == KeyEvent.VK_ESCAPE) {
+            Game.STATE_MANAGER.changeState(new PauseMenu());
+        }
     }
 
     @Override
