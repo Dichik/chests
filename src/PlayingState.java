@@ -91,8 +91,10 @@ public class PlayingState extends GameState {
 
 
     private void drawBackground(Graphics graphics) {
+
         graphics.setColor(new Color(192, 213, 49));
-        graphics.fillRect(0, 0, Window.WIDTH, Window.HEIGHT);
+        graphics.fillRect(0, 0, Window.WIDTH, 300);
+
         try {
             final BufferedImage image = ImageIO.read(new File("src/images/monkey.jpg"));
             graphics.drawImage(image, Window.WIDTH / 2 - image.getWidth() / 4, 0, image.getWidth() / 2, image.getHeight() / 2, null);
@@ -109,9 +111,23 @@ public class PlayingState extends GameState {
         graphics.setColor(new Color(22, 255, 98));
         graphics.fillRect(1, 301, Window.WIDTH - 1, Window.HEIGHT - 300 - 1);
 
+        Graphics2D g2D = (Graphics2D) graphics;
+        g2D.rotate(0.2);
+//        g2D.setColor(Color.BLACK);
+//        g2D.drawRect(0,100,250, 1000);
+        graphics.setColor(new Color(192, 213, 49));
+        g2D.fillRect(1,100 + 1,250 - 2, 1000 - 2);
+
+        g2D.rotate(-0.4);
+        graphics.setColor(new Color(192, 213, 49));
+        g2D.fillRect(Window.WIDTH - 250,300 + 1,250 - 2, 1000 - 2);
+
+        g2D.rotate(0.2);
+
         for (int i = 0; i < myCards.size(); ++i) {
             printMyCard(myCards.get(i), getStartPoint(150, myCards.size()) + 150 * i, Window.HEIGHT - 300, graphics);
         }
+//        TODO add borders of the table
     }
 
     // TODO create const variables for everything (Colors too)
