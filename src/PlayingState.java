@@ -91,7 +91,6 @@ public class PlayingState extends GameState {
 
 
     private void drawBackground(Graphics graphics) {
-
         graphics.setColor(new Color(192, 213, 49));
         graphics.fillRect(0, 0, Window.WIDTH, 300);
 
@@ -127,7 +126,6 @@ public class PlayingState extends GameState {
         for (int i = 0; i < myCards.size(); ++i) {
             printMyCard(myCards.get(i), getStartPoint(150, myCards.size()) + 150 * i, Window.HEIGHT - 300, graphics);
         }
-//        TODO add borders of the table
     }
 
     // TODO create const variables for everything (Colors too)
