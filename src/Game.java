@@ -15,13 +15,14 @@ public class Game {
         startGame();
     }
 
+
 //    TODO move all classes in packages
 
     private static void startGame() {
         System.out.println("[Game] starting...");
 
         STATE_MANAGER.changeState(new MainMenu());
-        timer = new Timer(20, new GameLoop());
+        timer = new Timer(60, new GameLoop());
         running = true;
         timer.start();
     }
