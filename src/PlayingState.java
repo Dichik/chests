@@ -99,8 +99,8 @@ public class PlayingState extends GameState {
         lastMoveCardName = chosenCardName;
         lastMoveCardColors = chosenCardColors;
 
-        changeTurn();
         checkIfComputerChestExists();
+        changeTurn();
     }
 
     private void makeComputerMove(String chosenCardName, Set<String> chosenCardColors) {
@@ -205,7 +205,7 @@ public class PlayingState extends GameState {
         String[] options = Stream.of(CardName.values())
                 .map(CardName::name).toArray(String[]::new);
         String chosenCardName = (String) JOptionPane.showInputDialog(
-                null,
+                Window.window,
                 "Choose Card Name from the list",
                 "Choose Card Name",
                 JOptionPane.QUESTION_MESSAGE,
@@ -216,7 +216,7 @@ public class PlayingState extends GameState {
 
         String[] number = new String[]{"1", "2", "3", "4"};
         int chosenNumber = Integer.parseInt((String) JOptionPane.showInputDialog(
-                null,
+                Window.window,
                 "Make your choice:",
                 "Choose amount of cards",
                 JOptionPane.QUESTION_MESSAGE,
@@ -233,7 +233,7 @@ public class PlayingState extends GameState {
                     .filter(name -> !chosenCardColors.contains(name))
                     .toArray(String[]::new);
             String chosenCardColor = (String) JOptionPane.showInputDialog(
-                    null,
+                    Window.window,
                     "Make a choice: ",
                     "Choose color of " + i + " card",
                     JOptionPane.QUESTION_MESSAGE,
@@ -342,6 +342,8 @@ public class PlayingState extends GameState {
         for (int i = 0; i < computerCards.size(); ++i) {
             printComputerCard(computerCards.get(i), getStartPoint(100, computerCards.size()) + 100 * i, 200, graphics);
         }
+
+//        TODO cards over rotated rectangles
 
         graphics.setColor(Color.BLACK);
         graphics.drawRect(0, 300, Window.WIDTH, Window.HEIGHT - 300);

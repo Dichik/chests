@@ -21,11 +21,6 @@ public class Window implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-
-    }
-
-    public static JFrame getWindow() {
-        return window;
     }
 
 }
