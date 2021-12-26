@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static java.util.stream.IntStream.*;
@@ -54,7 +53,56 @@ public class PlayingState extends GameState {
 //        TODO add checking if the game is finished
         if (myTurn) {
             makeMyMove();
+        } else {
+            makeComputerMove();
         }
+    }
+
+    private void makeComputerMove() {
+        String[] options = Stream.of(CardName.values())
+                .map(CardName::name).toArray(String[]::new);
+        String chosenCardName = options[rand(options.length)];
+
+        String[] number = new String[]{"1", "2", "3", "4"};
+        int chosenNumber = Integer.parseInt(number[rand(number.length)]);
+
+        Set<String> chosenCardColors = new HashSet<>();
+
+        rangeClosed(1, chosenNumber).forEach(i -> {
+            String[] cardColors = Stream.of(CardColor.values())
+                    .map(CardColor::name)
+                    .filter(name -> !chosenCardColors.contains(name))
+                    .toArray(String[]::new);
+            String chosenCardColor = cardColors[rand(cardColors.length)];
+            chosenCardColors.add(chosenCardColor);
+        });
+
+        makeComputerMove(chosenCardName, chosenCardColors);
+        changeTurn();
+        checkIfComputerChestExists();
+    }
+
+    private void makeComputerMove(String chosenCardName, Set<String> chosenCardColors) {
+        int numberOfTaken = 0;
+        List<Card> removeFromMyCards = new ArrayList<>();
+        for (Card myCard : myCards) {
+            if (myCard.getCardName().name().equals(chosenCardName)
+                    && chosenCardColors.contains(myCard.getColor().name())) {
+                numberOfTaken++;
+                computerCards.add(myCard);
+                removeFromMyCards.add(myCard);
+            }
+        }
+        if(numberOfTaken != chosenCardColors.size()) {
+            computerCards.add(deck.pop());
+        }
+        for (Card card : removeFromMyCards) {
+            myCards.remove(card);
+        }
+    }
+
+    private int rand(int limit) {
+        return new Random().nextInt(limit);
     }
 
     @Override
@@ -133,8 +181,29 @@ public class PlayingState extends GameState {
             chosenCardColors.add(chosenCardColor);
         });
 
+        makeMyMove(chosenCardName, chosenCardColors);
+// TODO sort cards by color then by name (asc)
         changeTurn();
-        // checkIfMyChestExists();
+        checkIfMyChestExists();
+    }
+
+    private void makeMyMove(String chosenCardName, Set<String> chosenCardColors) {
+        int numberOfTaken = 0;
+        List<Card> removeFromComputerCards = new ArrayList<>();
+        for (Card computerCard : computerCards) {
+            if (computerCard.getCardName().name().equals(chosenCardName)
+                    && chosenCardColors.contains(computerCard.getColor().name())) {
+                numberOfTaken++;
+                myCards.add(computerCard);
+                removeFromComputerCards.add(computerCard);
+            }
+        }
+        if(numberOfTaken != chosenCardColors.size()) {
+            myCards.add(deck.pop());
+        }
+        for (Card removeFromComputerCard : removeFromComputerCards) {
+            computerCards.remove(removeFromComputerCard);
+        }
     }
 
     private void changeTurn() {
