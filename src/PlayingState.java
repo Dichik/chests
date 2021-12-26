@@ -20,10 +20,16 @@ public class PlayingState extends GameState {
     private int INIT_NUMBER_OF_CARDS_TO_TAKE;
     private int NUMBER_OF_CARDS_IN_DECK;
 
+    private int countMyChests;
+    private int countComputersChests;
+
     @Override
     protected void init() {
         INIT_NUMBER_OF_CARDS_TO_TAKE = 8;
         NUMBER_OF_CARDS_IN_DECK = 36;
+
+        countMyChests = countComputersChests = 0;
+
         deck = new Stack<>();
         myCards = new ArrayList<>();
         computerCards = new ArrayList<>();
@@ -35,7 +41,7 @@ public class PlayingState extends GameState {
 
     @Override
     public void tick() {
-
+//        TODO add checking if the game is finished
     }
 
     @Override
@@ -46,7 +52,7 @@ public class PlayingState extends GameState {
     @Override
     public void keyPressed(int key) {
 //        TODO we should see chosenMenu - for card name and color
-        if(key == KeyEvent.VK_ESCAPE) {
+        if (key == KeyEvent.VK_ESCAPE) {
             Game.STATE_MANAGER.changeState(new PauseMenu());
         }
     }
@@ -71,11 +77,52 @@ public class PlayingState extends GameState {
         }
     }
 
-    private void makeMove(Card card) {
-        int youTake = 0;
-        List<Card> collect = computerCards.stream().filter(p -> points(p) == points(card))
-                .collect(Collectors.toList());
+    private void makeMyMove(Card card) {
 
+
+        checkIfMyChestExists();
+    }
+
+    private void checkIfMyChestExists() {
+        for (int i = 0; i < myCards.size(); ++i) {
+            int cntSameCardName = 1;
+            for (int j = i + 1; j < myCards.size(); ++j) {
+                if(myCards.get(i).getCardName().equals(myCards.get(j).getCardName())) {
+                    cntSameCardName++;
+                }
+            }
+            if(cntSameCardName == 4) {
+                removeAndIncreaseMyChest(myCards.get(i).getCardName());
+            }
+        }
+    }
+
+    private void removeAndIncreaseMyChest(CardName cardName) {
+        this.myCards = myCards.stream()
+                .filter(card -> !card.getCardName().equals(cardName))
+                .collect(Collectors.toList());
+        countMyChests++;
+    }
+
+    private void checkIfComputerChestExists() {
+        for (int i = 0; i < computerCards.size(); ++i) {
+            int cntSameCardName = 1;
+            for (int j = i + 1; j < computerCards.size(); ++j) {
+                if(computerCards.get(i).getCardName().equals(computerCards.get(j).getCardName())) {
+                    cntSameCardName++;
+                }
+            }
+            if(cntSameCardName == 4) {
+                removeAndIncreaseComputerChest(computerCards.get(i).getCardName());
+            }
+        }
+    }
+
+    private void removeAndIncreaseComputerChest(CardName cardName) {
+        this.computerCards = computerCards.stream()
+                .filter(card -> !card.getCardName().equals(cardName))
+                .collect(Collectors.toList());
+        countComputersChests++;
     }
 
     private int points(Card card) {
@@ -93,8 +140,8 @@ public class PlayingState extends GameState {
         shuffleCards(cardList);
     }
 
-
     private void drawBackground(Graphics graphics) {
+//        TODO divide into functions
         graphics.setColor(new Color(192, 213, 49));
         graphics.fillRect(0, 0, Window.WIDTH, 300);
 
@@ -119,11 +166,11 @@ public class PlayingState extends GameState {
 //        g2D.setColor(Color.BLACK);
 //        g2D.drawRect(0,100,250, 1000);
         graphics.setColor(new Color(192, 213, 49));
-        g2D.fillRect(1,100 + 1,250 - 2, 1000 - 2);
+        g2D.fillRect(1, 100 + 1, 250 - 2, 1000 - 2);
 
         g2D.rotate(-0.4);
         graphics.setColor(new Color(192, 213, 49));
-        g2D.fillRect(Window.WIDTH - 250,300 + 1,250 - 2, 1000 - 2);
+        g2D.fillRect(Window.WIDTH - 250, 300 + 1, 250 - 2, 1000 - 2);
 
         g2D.rotate(0.2);
         drawDeckOfCard(graphics);
@@ -131,6 +178,19 @@ public class PlayingState extends GameState {
         for (int i = 0; i < myCards.size(); ++i) {
             printMyCard(myCards.get(i), getStartPoint(150, myCards.size()) + 150 * i, Window.HEIGHT - 300, graphics);
         }
+
+        graphics.setColor(Color.BLACK);
+        graphics.drawRect(5, 5, 450, 40);
+        graphics.setColor(new Color(131, 253, 95));
+        graphics.fillRect(6, 6, 450 - 1, 40 - 1);
+
+        graphics.setColor(new Color(0, 0, 0));
+        graphics.setFont(new Font("Ubuntu", Font.PLAIN, 25));
+        graphics.drawString(getScoreString(), 10, 30);
+    }
+
+    private String getScoreString() {
+        return "My chests [ " + countMyChests + " ]:[ " + countComputersChests + " ] Computer's chests";
     }
 
     private void drawDeckOfCard(Graphics graphics) {
@@ -157,7 +217,7 @@ public class PlayingState extends GameState {
         graphics.setColor(Color.WHITE);
         graphics.fillRoundRect(x + 1, y + 1, 150 - 1, 250 - 1, 10, 10);
 
-        if(getColorFromCardName(card) == Color.BLACK) {
+        if (getColorFromCardName(card) == Color.BLACK) {
             graphics.setColor(new Color(108, 108, 108, 255));
             graphics.fillRect(x + 150 / 2 - 50, y + 250 / 2 - 60, 100, 120);
 
