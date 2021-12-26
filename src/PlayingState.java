@@ -28,6 +28,8 @@ public class PlayingState extends GameState {
     private int countComputersChests;
 
     private boolean myTurn;
+    private String lastMoveCardName;
+    private Set<String> lastMoveCardColors;
 
     @Override
     protected void init() {
@@ -78,6 +80,9 @@ public class PlayingState extends GameState {
         });
 
         makeComputerMove(chosenCardName, chosenCardColors);
+        lastMoveCardName = chosenCardName;
+        lastMoveCardColors = chosenCardColors;
+
         changeTurn();
         checkIfComputerChestExists();
     }
@@ -93,7 +98,7 @@ public class PlayingState extends GameState {
                 removeFromMyCards.add(myCard);
             }
         }
-        if(numberOfTaken != chosenCardColors.size()) {
+        if (numberOfTaken != chosenCardColors.size()) {
             computerCards.add(deck.pop());
         }
         for (Card card : removeFromMyCards) {
@@ -108,6 +113,48 @@ public class PlayingState extends GameState {
     @Override
     public void render(Graphics graphics) {
         drawBackground(graphics);
+
+        drawHistoryOfMoves(graphics);
+//        TODO check if we can press ESC when making our move
+    }
+
+    private void drawHistoryOfMoves(Graphics graphics) {
+        graphics.setColor(new Color(169, 129, 168));
+        graphics.fillRoundRect(Window.WIDTH - 355, 20, 300, 350, 10, 10);
+        graphics.setColor(new Color(255, 149, 251, 255));
+        graphics.fillRoundRect(Window.WIDTH - 350, 15, 300, 350, 10, 10);
+
+        graphics.setColor(Color.BLACK);
+        drawCenteredString(0, graphics);
+
+        if (lastMoveCardName != null && lastMoveCardColors != null) {
+            graphics.setColor(Color.BLACK);
+            graphics.setFont(new Font("Ubuntu", Font.PLAIN, 25));
+            if (myTurn) {
+                graphics.drawString("Computer chose: ", Window.WIDTH - 300, 90);
+            } else {
+                graphics.drawString("You chose: ", Window.WIDTH - 300, 90);
+            }
+            graphics.drawString(lastMoveCardName, Window.WIDTH - 300, 120);
+
+            int index = 0;
+            for (String cardName : lastMoveCardColors) {
+                try {
+                    final BufferedImage image = ImageIO.read(Objects.requireNonNull(getColorCardURL(cardName)));
+                    graphics.drawImage(image, Window.WIDTH - 300, 150 + index * 30, 50, 50, null);
+                    index++;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void drawCenteredString(int diffBetweenLines, Graphics graphics) {
+        FontMetrics fm = graphics.getFontMetrics();
+        int x = (Window.WIDTH - 350 + fm.stringWidth("History:") / 2);
+        int y = (fm.getAscent() + (70 + 200 * diffBetweenLines - (fm.getAscent() + fm.getDescent())) / 2);
+        graphics.drawString("History:", x, y);
     }
 
     @Override
@@ -182,6 +229,8 @@ public class PlayingState extends GameState {
         });
 
         makeMyMove(chosenCardName, chosenCardColors);
+        lastMoveCardName = chosenCardName;
+        lastMoveCardColors = chosenCardColors;
 // TODO sort cards by color then by name (asc)
         changeTurn();
         checkIfMyChestExists();
@@ -198,7 +247,7 @@ public class PlayingState extends GameState {
                 removeFromComputerCards.add(computerCard);
             }
         }
-        if(numberOfTaken != chosenCardColors.size()) {
+        if (numberOfTaken != chosenCardColors.size()) {
             myCards.add(deck.pop());
         }
         for (Card removeFromComputerCard : removeFromComputerCards) {
@@ -250,10 +299,6 @@ public class PlayingState extends GameState {
                 .filter(card -> !card.getCardName().equals(cardName))
                 .collect(Collectors.toList());
         countComputersChests++;
-    }
-
-    private int points(Card card) {
-        return map.get(card);
     }
 
     private void generateCards() {
@@ -358,7 +403,7 @@ public class PlayingState extends GameState {
         }
 
         try {
-            final BufferedImage colorCard = ImageIO.read(getColorCardURL(card));
+            final BufferedImage colorCard = ImageIO.read(getColorCardURL(card.getColor()));
             graphics.drawImage(colorCard, 150 / 2 + x - colorCard.getWidth() / 2, 250 / 2 + y - colorCard.getHeight() / 2, null);
             graphics.setColor(getColorFromCardName(card));
             graphics.setFont(new Font("Roboto", Font.PLAIN, 25));
@@ -402,8 +447,17 @@ public class PlayingState extends GameState {
         }
     }
 
-    private File getColorCardURL(Card card) {
-        switch (card.getColor()) {
+    private File getColorCardURL(String cardColor) {
+        for (int i = 0; i < 4; ++i) {
+            if (CardColor.values()[i].name().equals(cardColor)) {
+                return getColorCardURL(CardColor.values()[i]);
+            }
+        }
+        return null;
+    }
+
+    private File getColorCardURL(CardColor cardColor) {
+        switch (cardColor) {
             case CLUBS:
                 return new File("src/images/clubs.png");
             case HEARTS:
