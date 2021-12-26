@@ -1,5 +1,3 @@
-import lombok.*;
-
 public class Card {
     private CardName cardName;
     private CardColor color;
