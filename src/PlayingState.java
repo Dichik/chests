@@ -31,12 +31,16 @@ public class PlayingState extends GameState {
     private String lastMoveCardName;
     private Set<String> lastMoveCardColors;
 
+    private List<Card> rememberedCards;
+    private CardName lastChosenCardName;
+
     @Override
     protected void init() {
         INIT_NUMBER_OF_CARDS_TO_TAKE = 8;
         NUMBER_OF_CARDS_IN_DECK = 36;
 
         countMyChests = countComputersChests = 0;
+        rememberedCards = new ArrayList<>();
 
         deck = new Stack<>();
         myCards = new ArrayList<>();
@@ -59,7 +63,7 @@ public class PlayingState extends GameState {
             makeComputerMove();
         }
 
-        if(gameOver || myCards.isEmpty() || computerCards.isEmpty()) {
+        if (gameOver || myCards.isEmpty() || computerCards.isEmpty()) {
             showMessageGameOver();
             Game.STATE_MANAGER.clear();
             Game.STATE_MANAGER.changeState(new MainMenu());
@@ -68,7 +72,7 @@ public class PlayingState extends GameState {
 
     private void showMessageGameOver() {
         String message;
-        if(countMyChests > countComputersChests) {
+        if (countMyChests > countComputersChests) {
             message = "Congrats! You've won!";
         } else {
             message = "Sorry, try next time... ";
@@ -77,23 +81,25 @@ public class PlayingState extends GameState {
     }
 
     private void makeComputerMove() {
-        String[] options = Stream.of(CardName.values())
-                .map(CardName::name).toArray(String[]::new);
-        String chosenCardName = options[rand(options.length)];
 
-        String[] number = new String[]{"1", "2", "3", "4"};
-        int chosenNumber = Integer.parseInt(number[rand(number.length)]);
+        int index = getCardIndex();
+        lastChosenCardName = CardName.values()[index];
+
+        String chosenCardName = CardName.values()[index].name();
 
         Set<String> chosenCardColors = new HashSet<>();
 
-        rangeClosed(1, chosenNumber).forEach(i -> {
-            String[] cardColors = Stream.of(CardColor.values())
-                    .map(CardColor::name)
-                    .filter(name -> !chosenCardColors.contains(name))
-                    .toArray(String[]::new);
-            String chosenCardColor = cardColors[rand(cardColors.length)];
-            chosenCardColors.add(chosenCardColor);
-        });
+        Set<CardColor> alreadyExists = new HashSet<>();
+        for (Card card : computerCards) {
+            if (card.getCardName().name().equals(chosenCardName)) {
+                alreadyExists.add(card.getColor());
+            }
+        }
+        for (int i = 0; i < 4; ++i) {
+            if (!alreadyExists.contains(CardColor.values()[i])) {
+                chosenCardColors.add(CardColor.values()[i].name());
+            }
+        }
 
         makeComputerMove(chosenCardName, chosenCardColors);
         lastMoveCardName = chosenCardName;
@@ -101,6 +107,41 @@ public class PlayingState extends GameState {
 
         checkIfComputerChestExists();
         changeTurn();
+    }
+
+    private int getCardIndex() {
+        List<Card> totalCards = new ArrayList<>();
+        totalCards.addAll(rememberedCards);
+        totalCards.addAll(computerCards);
+
+        int[] count = new int[NUMBER_OF_CARDS_IN_DECK / 4];
+        int max = 1;
+        for (Card totalCard : totalCards) {
+            if(getNumberInMyCards(totalCard.getCardName()) == 0) continue;
+
+            if(lastChosenCardName != null && lastChosenCardName.equals(totalCard.getCardName()) )
+                continue;
+
+            count[totalCard.getCardName().getPosition()]++;
+            max = Math.max(max, count[totalCard.getCardName().getPosition()]);
+        }
+        int index = -1;
+        for (int i = 0; i < count.length; ++i) {
+            if (count[i] == max) {
+                if ((index == -1 || getNumberInMyCards(CardName.values()[i])
+                        < getNumberInMyCards(CardName.values()[i]))
+                        && getNumberInMyCards(CardName.values()[i]) != 0) {
+                    index = i;
+                }
+            }
+        }
+        return index;
+    }
+
+    private int getNumberInMyCards(CardName c) {
+        return Math.toIntExact(computerCards.stream()
+                .filter(card -> card.getCardName().name().equals(c.name()))
+                .count());
     }
 
     private void makeComputerMove(String chosenCardName, Set<String> chosenCardColors) {
@@ -114,7 +155,7 @@ public class PlayingState extends GameState {
                 removeFromMyCards.add(myCard);
             }
         }
-        if (numberOfTaken != chosenCardColors.size()) {
+        if (numberOfTaken != chosenCardColors.size() && !deck.isEmpty()) {
             computerCards.add(deck.pop());
         }
         for (Card card : removeFromMyCards) {
@@ -263,11 +304,12 @@ public class PlayingState extends GameState {
                 removeFromComputerCards.add(computerCard);
             }
         }
-        if (numberOfTaken != chosenCardColors.size()) {
+        if (numberOfTaken != chosenCardColors.size() && !deck.isEmpty()) {
             myCards.add(deck.pop());
         }
-        for (Card removeFromComputerCard : removeFromComputerCards) {
-            computerCards.remove(removeFromComputerCard);
+        for (Card card : removeFromComputerCards) {
+            rememberedCards.add(card);
+            computerCards.remove(card);
         }
     }
 
@@ -362,7 +404,9 @@ public class PlayingState extends GameState {
         g2D.fillRect(Window.WIDTH - 250, 300 + 1, 250 - 2, 1000 - 2);
 
         g2D.rotate(0.2);
-        drawDeckOfCard(graphics);
+        if(!deck.isEmpty()) {
+            drawDeckOfCard(graphics);
+        }
 
         for (int i = 0; i < myCards.size(); ++i) {
             printMyCard(myCards.get(i), getStartPoint(150, myCards.size()) + 150 * i, Window.HEIGHT - 300, graphics);
