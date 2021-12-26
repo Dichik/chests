@@ -16,7 +16,7 @@ import static java.util.stream.IntStream.*;
 public class PlayingState extends GameState {
 
     private Stack<Card> deck;
-    private Map<Card, Integer> map;
+    private Boolean gameOver;
 
     private List<Card> myCards;
     private List<Card> computerCards;
@@ -41,7 +41,7 @@ public class PlayingState extends GameState {
         deck = new Stack<>();
         myCards = new ArrayList<>();
         computerCards = new ArrayList<>();
-        map = new HashMap<>();
+        gameOver = false;
         generateCards();
 
         myTurn = true;
@@ -58,6 +58,22 @@ public class PlayingState extends GameState {
         } else {
             makeComputerMove();
         }
+
+        if(gameOver || myCards.isEmpty() || computerCards.isEmpty()) {
+            showMessageGameOver();
+            Game.STATE_MANAGER.clear();
+            Game.STATE_MANAGER.changeState(new MainMenu());
+        }
+    }
+
+    private void showMessageGameOver() {
+        String message;
+        if(countMyChests > countComputersChests) {
+            message = "Congrats! You've won!";
+        } else {
+            message = "Sorry, try next time... ";
+        }
+        JOptionPane.showMessageDialog(Window.window, message);
     }
 
     private void makeComputerMove() {
