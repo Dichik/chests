@@ -1,4 +1,5 @@
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.geom.RoundRectangle2D;
@@ -8,6 +9,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.stream.IntStream.*;
 
 public class PlayingState extends GameState {
 
@@ -23,6 +28,8 @@ public class PlayingState extends GameState {
     private int countMyChests;
     private int countComputersChests;
 
+    private boolean myTurn;
+
     @Override
     protected void init() {
         INIT_NUMBER_OF_CARDS_TO_TAKE = 8;
@@ -36,12 +43,18 @@ public class PlayingState extends GameState {
         map = new HashMap<>();
         generateCards();
 
+        myTurn = true;
+//        TODO toss-up who starts + add animation
+
         rozGive();
     }
 
     @Override
     public void tick() {
 //        TODO add checking if the game is finished
+        if (myTurn) {
+            makeMyMove();
+        }
     }
 
     @Override
@@ -77,21 +90,66 @@ public class PlayingState extends GameState {
         }
     }
 
-    private void makeMyMove(Card card) {
+    private void makeMyMove() {
+        String[] options = Stream.of(CardName.values())
+                .map(CardName::name).toArray(String[]::new);
+        String chosenCardName = (String) JOptionPane.showInputDialog(
+                null,
+                "Choose Card Name from the list",
+                "Choose Card Name",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]
+        );
 
+        String[] number = new String[]{"1", "2", "3", "4"};
+        int chosenNumber = Integer.parseInt((String) JOptionPane.showInputDialog(
+                null,
+                "Make your choice:",
+                "Choose amount of cards",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                number,
+                number[0]
+        ));
 
-        checkIfMyChestExists();
+        Set<String> chosenCardColors = new HashSet<>();
+
+        rangeClosed(1, chosenNumber).forEach(i -> {
+            String[] cardColors = Stream.of(CardColor.values())
+                    .map(CardColor::name)
+                    .filter(name -> !chosenCardColors.contains(name))
+                    .toArray(String[]::new);
+            String chosenCardColor = (String) JOptionPane.showInputDialog(
+                    null,
+                    "Make a choice: ",
+                    "Choose color of " + i + " card",
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    cardColors,
+                    cardColors[0]
+            );
+            chosenCardColors.add(chosenCardColor);
+        });
+
+        changeTurn();
+        // checkIfMyChestExists();
+    }
+
+    private void changeTurn() {
+        myTurn = !myTurn;
     }
 
     private void checkIfMyChestExists() {
         for (int i = 0; i < myCards.size(); ++i) {
             int cntSameCardName = 1;
             for (int j = i + 1; j < myCards.size(); ++j) {
-                if(myCards.get(i).getCardName().equals(myCards.get(j).getCardName())) {
+                if (myCards.get(i).getCardName().equals(myCards.get(j).getCardName())) {
                     cntSameCardName++;
                 }
             }
-            if(cntSameCardName == 4) {
+            if (cntSameCardName == 4) {
                 removeAndIncreaseMyChest(myCards.get(i).getCardName());
             }
         }
@@ -108,11 +166,11 @@ public class PlayingState extends GameState {
         for (int i = 0; i < computerCards.size(); ++i) {
             int cntSameCardName = 1;
             for (int j = i + 1; j < computerCards.size(); ++j) {
-                if(computerCards.get(i).getCardName().equals(computerCards.get(j).getCardName())) {
+                if (computerCards.get(i).getCardName().equals(computerCards.get(j).getCardName())) {
                     cntSameCardName++;
                 }
             }
-            if(cntSameCardName == 4) {
+            if (cntSameCardName == 4) {
                 removeAndIncreaseComputerChest(computerCards.get(i).getCardName());
             }
         }
@@ -128,7 +186,6 @@ public class PlayingState extends GameState {
     private int points(Card card) {
         return map.get(card);
     }
-
 
     private void generateCards() {
         List<Card> cardList = new ArrayList<>();
